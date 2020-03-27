@@ -50,3 +50,6 @@
 {"message":"Bookmark with id 8sdfbvbs65 not found.","level":"error"}
 {"message":"Bookmark with id 8sdfbvbs65sd deleted.","level":"info"}
 {"message":"Bookmark with id 8sdfbvbs65sd not found.","level":"error"}
+{"message":"Unauthorized request to path: /bookmarks","level":"error"}
+{"message":"Title is required","level":"error"}
+{"message":"Bookmark with id 36bf326b-c486-4863-94e7-f7b765aabe56 deleted.","level":"info"}
