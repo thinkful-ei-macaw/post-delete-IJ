@@ -54,13 +54,14 @@ if (NODE_ENV !== "production") {
 app.get("/bookmarks", (req, res) => {
   res.json(bookmarks);
 });
+
 app.get("/bookmarks/:id", (req, res) => {
   const { id } = req.params;
   const bookmark = bookmarks.find(b => b.id == id);
 
   if (!bookmark) {
     logger.error(`Bookmark with id ${id} not found.`);
-    return res.status(404).send("Card Not Found");
+    return res.status(404).send("Bookmark not found");
   }
 
   res.json(bookmark);
@@ -68,8 +69,7 @@ app.get("/bookmarks/:id", (req, res) => {
 
 app.post("/bookmarks", (req, res) => {
   const { title, url, rating, desc = false } = req.body;
-  const id = uuid()
-
+  const id = uuid();
 
   if (!title) {
     logger.error(`Title is required`);
@@ -90,11 +90,24 @@ app.post("/bookmarks", (req, res) => {
     rating,
     url,
     desc
-  }
-  bookmarks.push(newBookmark)
+  };
+  bookmarks.push(newBookmark);
   res.send("got");
-  
-  
+});
+
+app.delete("/bookmarks/:id", (req, res) => {
+  const { id } = req.params;
+  const index = bookmarks.findIndex(i => i.id == id);
+
+  if (index === -1) {
+    logger.error(`List with id ${id} not found.`);
+    return res.status(404).send("Not Found");
+  }
+
+  bookmarks.splice(index, 1);
+
+  logger.info(`Bookmark with id ${id} deleted.`);
+  res.status(204).end();
 });
 
 app.use(function errorHandler(error, req, res, next) {
@@ -109,7 +122,5 @@ app.use(function errorHandler(error, req, res, next) {
 });
 
 module.exports = app;
-
-// Write a route handler for the endpoint GET /bookmarks/:id that returns a single bookmark with the given ID, return 404 Not Found if the ID is not valid
 
 // Write a route handler for the endpoint DELETE /bookmarks/:id that deletes the bookmark with the given ID.
