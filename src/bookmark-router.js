@@ -6,54 +6,32 @@ const logger = require("./logger");
 const bookmarks = require("./store");
 const BookmarksService = require("./bookmarks-service");
 
-bookmarkRouter
-  .route("/bookmarks")
-  .get((req, res, next) => {
-    const knexInstance = req.app.get("db");
-    BookmarksService.getAllBookmarks(knexInstance)
-      .then(bookmarks => {
-        res.json(bookmarks);
-      })
-      .catch(next);
-  })
-
-  .post(bodyParser, (req, res) => {
-    const { title, url, rating, desc = false } = req.body;
-    const id = uuid();
-
-    if (!title) {
-      logger.error(`Title is required`);
-      return res.status(400).send("Invalid data");
-    }
-    const regex = /^[1-5]$/;
-    if (!rating || !rating.match(regex)) {
-      logger.error("rating is required and must be a number 1-5");
-      return res.status(400).send("invalid data");
-    }
-    if (!url) {
-      logger.error("url is required");
-      return res.status(400).send("invalid data");
-    }
-    const newBookmark = {
-      id,
-      title,
-      rating,
-      url,
-      desc
-    };
-    bookmarks.push(newBookmark);
-    res.send("got");
-  });
+bookmarkRouter.route("/bookmarks").get((req, res, next) => {
+  const knexInstance = req.app.get("db");
+  BookmarksService.getAllBookmarks(knexInstance)
+    .then(bookmarks => {
+      res.json(bookmarks);
+    })
+    .catch(next);
+})
+.post(bodyParser, (req, res, next) => {
+const { title, url, rating } = req.bodyParser;
+ const newBookmark = { title, url, rating };
+ BookmarksService.insertBookmarks(req.app.get("db"), newBookmark)
+   .then(bookmark => {
+     res.status(201).json(bookmark);
+   })
+   .catch(next);
+});
 
 bookmarkRouter
   .route("/bookmarks/:id")
   .get((req, res, next) => {
-    const { id } = req.params;
     const knexInstance = req.app.get("db");
+    const { id } = req.params;
     BookmarksService.getById(knexInstance, id)
       .then(bookmark => {
         if (!bookmark) {
-          console.log(bookmark);
           logger.error(`Bookmark with id ${id} not found.`);
           return res
             .status(404)
